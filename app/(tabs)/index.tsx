@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
-  const [secondsLeft, setSecondsLeft] = useState(25 * 60); // 25 dakika
+  const [secondsLeft, setSecondsLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     let timer: any;
@@ -30,9 +31,49 @@ export default function HomeScreen() {
     setSecondsLeft(25 * 60);
   };
 
+  // KATEGORİ SEÇİLMEDİYSE KATEGORİ EKRANI GÖRÜNECEK
+  if (!selectedCategory) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Kategori Seç</Text>
+
+        <TouchableOpacity
+          style={styles.categoryButton}
+          onPress={() => setSelectedCategory("Ders")}
+        >
+          <Text style={styles.buttonText}>📚 Ders</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.categoryButton}
+          onPress={() => setSelectedCategory("Kodlama")}
+        >
+          <Text style={styles.buttonText}>💻 Kodlama</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.categoryButton}
+          onPress={() => setSelectedCategory("Kitap")}
+        >
+          <Text style={styles.buttonText}>📖 Kitap</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.categoryButton}
+          onPress={() => setSelectedCategory("Proje")}
+        >
+          <Text style={styles.buttonText}>🛠 Proje</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // KATEGORİ SEÇİLDİKTEN SONRA ZAMANLAYICI EKRANI
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Odaklanma Zamanlayıcısı</Text>
+      <Text style={styles.categoryText}>Kategori: {selectedCategory}</Text>
+
       <Text style={styles.timer}>{formatTime(secondsLeft)}</Text>
 
       <View style={styles.buttons}>
@@ -47,6 +88,14 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
           <Text style={styles.buttonText}>Sıfırla 🔄</Text>
         </TouchableOpacity>
+
+        {/* Kategori Değiştirme */}
+        <TouchableOpacity
+          style={styles.changeCategoryButton}
+          onPress={() => setSelectedCategory(null)}
+        >
+          <Text style={styles.buttonText}>Kategori Değiştir 🔁</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -58,11 +107,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
+    padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 30,
+    marginBottom: 20,
+  },
+  categoryText: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: "#555",
   },
   timer: {
     fontSize: 48,
@@ -83,6 +138,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#F44336",
     padding: 15,
     borderRadius: 10,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  changeCategoryButton: {
+    backgroundColor: "#2196F3",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  categoryButton: {
+    backgroundColor: "#673AB7",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 12,
+    width: "80%",
     alignItems: "center",
   },
   buttonText: {
