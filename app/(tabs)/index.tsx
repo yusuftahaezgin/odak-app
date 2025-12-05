@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSessions } from "../context/SessionsContext";
 
 export default function HomeScreen() {
   const [secondsLeft, setSecondsLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  // Rapor kaydı için context
+  const { addSession } = useSessions();
+
+  // ---------------------------
+  //   Sayaç Mekanizması
+  // ---------------------------
   useEffect(() => {
     let timer: any;
 
@@ -15,23 +22,59 @@ export default function HomeScreen() {
       }, 1000);
     }
 
+    // Sayaç sıfıra indiğinde seansı kaydet
+    if (secondsLeft === 0 && isRunning) {
+      setIsRunning(false);
+      kaydetSession();
+    }
+
     return () => clearInterval(timer);
   }, [isRunning, secondsLeft]);
 
+  // ---------------------------
+  //   Seans Kaydetme
+  // ---------------------------
+  const kaydetSession = () => {
+    if (!selectedCategory) return;
+
+    const total = 25 * 60;
+    const duration = total - secondsLeft; // kaç saniye çalıştı
+
+    addSession({
+      id: Date.now(),
+      duration: duration,
+      category: selectedCategory,
+      distractions: 0,
+    });
+  };
+
+  // ---------------------------
+  //   Buton Fonksiyonları
+  // ---------------------------
+  const handleStart = () => setIsRunning(true);
+
+  const handlePause = () => {
+    setIsRunning(false);
+    kaydetSession(); // Duraklatınca kaydediyoruz
+  };
+
+  const handleReset = () => {
+    setIsRunning(false);
+    setSecondsLeft(25 * 60);
+  };
+
+  // ---------------------------
+  //   Zaman Formatı
+  // ---------------------------
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  const handleStart = () => setIsRunning(true);
-  const handlePause = () => setIsRunning(false);
-  const handleReset = () => {
-    setIsRunning(false);
-    setSecondsLeft(25 * 60);
-  };
-
-  // KATEGORİ SEÇİLMEDİYSE KATEGORİ EKRANI GÖRÜNECEK
+  // ---------------------------
+  //   Kategori Seçilmemişse
+  // ---------------------------
   if (!selectedCategory) {
     return (
       <View style={styles.container}>
@@ -68,7 +111,9 @@ export default function HomeScreen() {
     );
   }
 
-  // KATEGORİ SEÇİLDİKTEN SONRA ZAMANLAYICI EKRANI
+  // ---------------------------
+  //   Ana Sayaç Ekranı
+  // ---------------------------
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Odaklanma Zamanlayıcısı</Text>
@@ -89,7 +134,7 @@ export default function HomeScreen() {
           <Text style={styles.buttonText}>Sıfırla 🔄</Text>
         </TouchableOpacity>
 
-        {/* Kategori Değiştirme */}
+        {/* Kategori Değiştir */}
         <TouchableOpacity
           style={styles.changeCategoryButton}
           onPress={() => setSelectedCategory(null)}
