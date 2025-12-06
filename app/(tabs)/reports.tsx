@@ -4,17 +4,32 @@ import { useSessions } from "../context/SessionsContext";
 export default function ReportsScreen() {
   const { sessions } = useSessions();
 
+  const formatDuration = (durationInSeconds: number) => {
+    const minutes = Math.floor(durationInSeconds / 60);
+    const seconds = durationInSeconds % 60;
+
+    if (minutes === 0) {
+      return `${seconds} saniye`;
+    }
+
+    if (seconds === 0) {
+      return `${minutes} dakika`;
+    }
+
+    return `${minutes} dakika ${seconds} saniye`;
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Raporlar</Text>
 
-      {sessions.length === 0 && <Text>Henüz seans yok</Text>}
+      {sessions.length === 0 && <Text>Henüz seans yok 👀</Text>}
 
       {sessions.map((s) => (
         <View key={s.id} style={styles.card}>
-          <Text style={styles.text}>Kategori: {s.category}</Text>
-          <Text style={styles.text}>Süre: {s.duration / 60} dk</Text>
-          <Text style={styles.text}>Dikkat Dağınıklığı: {s.distractions}</Text>
+          <Text style={styles.cardText}>Kategori: {s.category}</Text>
+          <Text style={styles.cardText}>Süre: {formatDuration(s.duration)}</Text>
+          <Text style={styles.cardText}>Dikkat Dağınıklığı: {s.distractions}</Text>
         </View>
       ))}
     </View>
@@ -37,10 +52,11 @@ const styles = StyleSheet.create({
     width: "90%",
     backgroundColor: "#eee",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 15,
   },
-  text: {
+  cardText: {
     fontSize: 18,
+    marginBottom: 4,
   },
 });

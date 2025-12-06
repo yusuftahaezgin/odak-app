@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { AppState, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSessions } from "../context/SessionsContext";
 
 export default function HomeScreen() {
@@ -7,12 +7,14 @@ export default function HomeScreen() {
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Rapor kaydı için context
+  const [distractions, setDistractions] = useState(0);
+  const appState = useRef(AppState.currentState);
+
   const { addSession } = useSessions();
 
-  // ---------------------------
-  //   Sayaç Mekanizması
-  // ---------------------------
+  // -------------------------------
+  // 1) Sayaç çalışma mantığı
+  // -------------------------------
   useEffect(() => {
     let timer: any;
 
@@ -22,7 +24,7 @@ export default function HomeScreen() {
       }, 1000);
     }
 
-    // Sayaç sıfıra indiğinde seansı kaydet
+    // SIFIRA İNDİĞİNDE OTOMATİK KAYDET
     if (secondsLeft === 0 && isRunning) {
       setIsRunning(false);
       kaydetSession();
@@ -31,50 +33,57 @@ export default function HomeScreen() {
     return () => clearInterval(timer);
   }, [isRunning, secondsLeft]);
 
-  // ---------------------------
-  //   Seans Kaydetme
-  // ---------------------------
-  const kaydetSession = () => {
-    if (!selectedCategory) return;
+  // -------------------------------
+  // 2) AppState — Dikkat dağınıklığı takibi
+  // -------------------------------
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current === "active" &&
+        nextAppState.match(/inactive|background/)
+      ) {
+        console.log("📌 Uygulamadan çıkıldı → Dikkat dağınıklığı!");
 
-    const total = 25 * 60;
-    const duration = total - secondsLeft; // kaç saniye çalıştı
+        if (isRunning) {
+          setIsRunning(false);
+          setDistractions((prev) => prev + 1);
+        }
+      }
 
-    addSession({
-      id: Date.now(),
-      duration: duration,
-      category: selectedCategory,
-      distractions: 0,
+      appState.current = nextAppState;
     });
-  };
 
-  // ---------------------------
-  //   Buton Fonksiyonları
-  // ---------------------------
-  const handleStart = () => setIsRunning(true);
+    return () => {
+      subscription.remove();
+    };
+  }, [isRunning]);
 
-  const handlePause = () => {
-    setIsRunning(false);
-    kaydetSession(); // Duraklatınca kaydediyoruz
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setSecondsLeft(25 * 60);
-  };
-
-  // ---------------------------
-  //   Zaman Formatı
-  // ---------------------------
+  // -------------------------------
+  // 3) Zaman formatı
+  // -------------------------------
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  // ---------------------------
-  //   Kategori Seçilmemişse
-  // ---------------------------
+  // -------------------------------
+  // 4) Seans kaydetme
+  // -------------------------------
+  const kaydetSession = () => {
+    addSession({
+      id: Date.now(),
+      duration: 25 * 60 - secondsLeft,
+      category: selectedCategory!,
+      distractions: distractions,
+    });
+
+    setDistractions(0);
+  };
+
+  // -------------------------------
+  // 5) Kategori ekranı
+  // -------------------------------
   if (!selectedCategory) {
     return (
       <View style={styles.container}>
@@ -111,9 +120,9 @@ export default function HomeScreen() {
     );
   }
 
-  // ---------------------------
-  //   Ana Sayaç Ekranı
-  // ---------------------------
+  // -------------------------------
+  // 6) Zamanlayıcı ekranı
+  // -------------------------------
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Odaklanma Zamanlayıcısı</Text>
@@ -122,22 +131,32 @@ export default function HomeScreen() {
       <Text style={styles.timer}>{formatTime(secondsLeft)}</Text>
 
       <View style={styles.buttons}>
-        <TouchableOpacity style={styles.button} onPress={handleStart}>
+        <TouchableOpacity style={styles.button} onPress={() => setIsRunning(true)}>
           <Text style={styles.buttonText}>Başlat ▶️</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handlePause}>
+        <TouchableOpacity style={styles.button} onPress={() => setIsRunning(false)}>
           <Text style={styles.buttonText}>Duraklat ⏸</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+        <TouchableOpacity
+          style={styles.resetButton}
+          onPress={() => {
+            setIsRunning(false);
+            setSecondsLeft(25 * 60);
+            kaydetSession();
+          }}
+        >
           <Text style={styles.buttonText}>Sıfırla 🔄</Text>
         </TouchableOpacity>
 
-        {/* Kategori Değiştir */}
         <TouchableOpacity
           style={styles.changeCategoryButton}
-          onPress={() => setSelectedCategory(null)}
+          onPress={() => {
+            setSelectedCategory(null);
+            setDistractions(0);
+            setSecondsLeft(25 * 60);
+          }}
         >
           <Text style={styles.buttonText}>Kategori Değiştir 🔁</Text>
         </TouchableOpacity>
@@ -146,6 +165,9 @@ export default function HomeScreen() {
   );
 }
 
+// --------------------------------------------
+// 7) Stil dosyası
+// --------------------------------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
