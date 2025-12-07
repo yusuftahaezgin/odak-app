@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { useSessions } from "../context/SessionsContext";
+import { useSessions } from "../../src/context/SessionsContext";
 
 export default function ReportsScreen() {
   const { sessions } = useSessions();

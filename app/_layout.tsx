@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { SessionsProvider } from "./context/SessionsContext";
+import { SessionsProvider } from "../src/context/SessionsContext";
 
 export default function RootLayout() {
   return (

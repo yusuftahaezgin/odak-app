@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { AppState, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSessions } from "../context/SessionsContext";
+import { useSessions } from "../../src/context/SessionsContext";
 
 export default function HomeScreen() {
+  // Seçilen süre (dakika)
+  const [focusMinutes, setFocusMinutes] = useState(25);
+
+  // Sayaç (saniye)
   const [secondsLeft, setSecondsLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -73,7 +77,8 @@ export default function HomeScreen() {
   const kaydetSession = () => {
     addSession({
       id: Date.now(),
-      duration: 25 * 60 - secondsLeft,
+      // başlangıç süresi (focusMinutes * 60) - kalan süre
+      duration: focusMinutes * 60 - secondsLeft,
       category: selectedCategory!,
       distractions: distractions,
     });
@@ -82,13 +87,78 @@ export default function HomeScreen() {
   };
 
   // -------------------------------
-  // 5) Kategori ekranı
+  // 5) Süre seçme handler’ı
+  // -------------------------------
+  const handleSelectDuration = (minutes: number) => {
+    setFocusMinutes(minutes);
+    setSecondsLeft(minutes * 60);
+    setIsRunning(false);
+  };
+
+  // -------------------------------
+  // 6) Kategori & süre seçim ekranı
   // -------------------------------
   if (!selectedCategory) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Kategori Seç</Text>
 
+        {/* Süre seçimi */}
+        <Text style={styles.subtitle}>Süre Seç</Text>
+        <View style={styles.durationRow}>
+          <TouchableOpacity
+            style={[
+              styles.durationButton,
+              focusMinutes === 25 && styles.durationButtonSelected,
+            ]}
+            onPress={() => handleSelectDuration(25)}
+          >
+            <Text
+              style={[
+                styles.durationButtonText,
+                focusMinutes === 25 && styles.durationButtonTextSelected,
+              ]}
+            >
+              25 dk
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.durationButton,
+              focusMinutes === 45 && styles.durationButtonSelected,
+            ]}
+            onPress={() => handleSelectDuration(45)}
+          >
+            <Text
+              style={[
+                styles.durationButtonText,
+                focusMinutes === 45 && styles.durationButtonTextSelected,
+              ]}
+            >
+              45 dk
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.durationButton,
+              focusMinutes === 60 && styles.durationButtonSelected,
+            ]}
+            onPress={() => handleSelectDuration(60)}
+          >
+            <Text
+              style={[
+                styles.durationButtonText,
+                focusMinutes === 60 && styles.durationButtonTextSelected,
+              ]}
+            >
+              60 dk
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Kategori butonları */}
         <TouchableOpacity
           style={styles.categoryButton}
           onPress={() => setSelectedCategory("Ders")}
@@ -121,12 +191,13 @@ export default function HomeScreen() {
   }
 
   // -------------------------------
-  // 6) Zamanlayıcı ekranı
+  // 7) Zamanlayıcı ekranı
   // -------------------------------
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Odaklanma Zamanlayıcısı</Text>
       <Text style={styles.categoryText}>Kategori: {selectedCategory}</Text>
+      <Text style={styles.categoryText}>Süre: {focusMinutes} dakika</Text>
 
       <Text style={styles.timer}>{formatTime(secondsLeft)}</Text>
 
@@ -143,7 +214,7 @@ export default function HomeScreen() {
           style={styles.resetButton}
           onPress={() => {
             setIsRunning(false);
-            setSecondsLeft(25 * 60);
+            setSecondsLeft(focusMinutes * 60);
             kaydetSession();
           }}
         >
@@ -155,7 +226,8 @@ export default function HomeScreen() {
           onPress={() => {
             setSelectedCategory(null);
             setDistractions(0);
-            setSecondsLeft(25 * 60);
+            setSecondsLeft(focusMinutes * 60);
+            setIsRunning(false);
           }}
         >
           <Text style={styles.buttonText}>Kategori Değiştir 🔁</Text>
@@ -166,7 +238,7 @@ export default function HomeScreen() {
 }
 
 // --------------------------------------------
-// 7) Stil dosyası
+// 8) Stil dosyası
 // --------------------------------------------
 const styles = StyleSheet.create({
   container: {
@@ -181,15 +253,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
+  },
   categoryText: {
     fontSize: 18,
-    marginBottom: 10,
+    marginBottom: 6,
     color: "#555",
   },
   timer: {
     fontSize: 48,
     fontWeight: "bold",
-    marginBottom: 40,
+    marginVertical: 20,
   },
   buttons: {
     width: "80%",
@@ -227,5 +304,30 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  durationRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "80%",
+    marginBottom: 20,
+  },
+  durationButton: {
+    flex: 1,
+    paddingVertical: 10,
+    marginHorizontal: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#673AB7",
+    alignItems: "center",
+  },
+  durationButtonSelected: {
+    backgroundColor: "#673AB7",
+  },
+  durationButtonText: {
+    color: "#673AB7",
+    fontWeight: "600",
+  },
+  durationButtonTextSelected: {
+    color: "#FFFFFF",
   },
 });
