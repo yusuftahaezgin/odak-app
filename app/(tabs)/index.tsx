@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { AppState, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  AppState,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSessions } from "../../src/context/SessionsContext";
+
+type LastSessionSummary = {
+  category: string;
+  duration: number; // saniye
+  distractions: number;
+};
 
 export default function HomeScreen() {
   // Seçilen süre (dakika)
@@ -16,6 +29,10 @@ export default function HomeScreen() {
 
   const { addSession } = useSessions();
 
+  // Seans özeti için state
+  const [lastSession, setLastSession] = useState<LastSessionSummary | null>(null);
+  const [isSummaryVisible, setIsSummaryVisible] = useState(false);
+
   // -------------------------------
   // 1) Sayaç çalışma mantığı
   // -------------------------------
@@ -28,7 +45,7 @@ export default function HomeScreen() {
       }, 1000);
     }
 
-    // SIFIRA İNDİĞİNDE OTOMATİK KAYDET
+    // SIFIRA İNDİĞİNDE OTOMATİK KAYDET + ÖZET GÖSTER
     if (secondsLeft === 0 && isRunning) {
       setIsRunning(false);
       kaydetSession();
@@ -72,16 +89,31 @@ export default function HomeScreen() {
   };
 
   // -------------------------------
-  // 4) Seans kaydetme
+  // 4) Seans kaydetme + özeti açma
   // -------------------------------
   const kaydetSession = () => {
-    addSession({
+    // Kategori seçilmemişse veya süre 0'dan küçükse kaydetme
+    if (!selectedCategory) return;
+
+    const duration = focusMinutes * 60 - secondsLeft;
+    if (duration <= 0) return;
+
+    const session = {
       id: Date.now(),
-      // başlangıç süresi (focusMinutes * 60) - kalan süre
-      duration: focusMinutes * 60 - secondsLeft,
-      category: selectedCategory!,
+      duration: duration,
+      category: selectedCategory,
       distractions: distractions,
+    };
+
+    addSession(session);
+
+    // Son seans özetini state'e yaz
+    setLastSession({
+      category: session.category,
+      duration: session.duration,
+      distractions: session.distractions,
     });
+    setIsSummaryVisible(true);
 
     setDistractions(0);
   };
@@ -96,149 +128,195 @@ export default function HomeScreen() {
   };
 
   // -------------------------------
-  // 6) Kategori & süre seçim ekranı
+  // 6) Seans özeti modal'ı
+  // -------------------------------
+  const renderSummaryModal = () => (
+    <Modal visible={isSummaryVisible} transparent animationType="slide">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Seans Özeti</Text>
+
+          {lastSession && (
+            <>
+              <Text style={styles.modalText}>
+                Kategori: {lastSession.category}
+              </Text>
+              <Text style={styles.modalText}>
+                Süre: {formatTime(lastSession.duration)}
+              </Text>
+              <Text style={styles.modalText}>
+                Dikkat Dağınıklığı: {lastSession.distractions}
+              </Text>
+            </>
+          )}
+
+          <TouchableOpacity
+            style={styles.modalButton}
+            onPress={() => setIsSummaryVisible(false)}
+          >
+            <Text style={styles.modalButtonText}>Tamam</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  // -------------------------------
+  // 7) Kategori & süre seçim ekranı
   // -------------------------------
   if (!selectedCategory) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Kategori Seç</Text>
+      <>
+        {renderSummaryModal()}
+        <View style={styles.container}>
+          <Text style={styles.title}>Kategori Seç</Text>
 
-        {/* Süre seçimi */}
-        <Text style={styles.subtitle}>Süre Seç</Text>
-        <View style={styles.durationRow}>
-          <TouchableOpacity
-            style={[
-              styles.durationButton,
-              focusMinutes === 25 && styles.durationButtonSelected,
-            ]}
-            onPress={() => handleSelectDuration(25)}
-          >
-            <Text
+          {/* Süre seçimi */}
+          <Text style={styles.subtitle}>Süre Seç</Text>
+          <View style={styles.durationRow}>
+            <TouchableOpacity
               style={[
-                styles.durationButtonText,
-                focusMinutes === 25 && styles.durationButtonTextSelected,
+                styles.durationButton,
+                focusMinutes === 25 && styles.durationButtonSelected,
               ]}
+              onPress={() => handleSelectDuration(25)}
             >
-              25 dk
-            </Text>
+              <Text
+                style={[
+                  styles.durationButtonText,
+                  focusMinutes === 25 && styles.durationButtonTextSelected,
+                ]}
+              >
+                25 dk
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.durationButton,
+                focusMinutes === 45 && styles.durationButtonSelected,
+              ]}
+              onPress={() => handleSelectDuration(45)}
+            >
+              <Text
+                style={[
+                  styles.durationButtonText,
+                  focusMinutes === 45 && styles.durationButtonTextSelected,
+                ]}
+              >
+                45 dk
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.durationButton,
+                focusMinutes === 60 && styles.durationButtonSelected,
+              ]}
+              onPress={() => handleSelectDuration(60)}
+            >
+              <Text
+                style={[
+                  styles.durationButtonText,
+                  focusMinutes === 60 && styles.durationButtonTextSelected,
+                ]}
+              >
+                60 dk
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Kategori butonları */}
+          <TouchableOpacity
+            style={styles.categoryButton}
+            onPress={() => setSelectedCategory("Ders")}
+          >
+            <Text style={styles.buttonText}>📚 Ders</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.durationButton,
-              focusMinutes === 45 && styles.durationButtonSelected,
-            ]}
-            onPress={() => handleSelectDuration(45)}
+            style={styles.categoryButton}
+            onPress={() => setSelectedCategory("Kodlama")}
           >
-            <Text
-              style={[
-                styles.durationButtonText,
-                focusMinutes === 45 && styles.durationButtonTextSelected,
-              ]}
-            >
-              45 dk
-            </Text>
+            <Text style={styles.buttonText}>💻 Kodlama</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.durationButton,
-              focusMinutes === 60 && styles.durationButtonSelected,
-            ]}
-            onPress={() => handleSelectDuration(60)}
+            style={styles.categoryButton}
+            onPress={() => setSelectedCategory("Kitap")}
           >
-            <Text
-              style={[
-                styles.durationButtonText,
-                focusMinutes === 60 && styles.durationButtonTextSelected,
-              ]}
-            >
-              60 dk
-            </Text>
+            <Text style={styles.buttonText}>📖 Kitap</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.categoryButton}
+            onPress={() => setSelectedCategory("Proje")}
+          >
+            <Text style={styles.buttonText}>🛠 Proje</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Kategori butonları */}
-        <TouchableOpacity
-          style={styles.categoryButton}
-          onPress={() => setSelectedCategory("Ders")}
-        >
-          <Text style={styles.buttonText}>📚 Ders</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.categoryButton}
-          onPress={() => setSelectedCategory("Kodlama")}
-        >
-          <Text style={styles.buttonText}>💻 Kodlama</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.categoryButton}
-          onPress={() => setSelectedCategory("Kitap")}
-        >
-          <Text style={styles.buttonText}>📖 Kitap</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.categoryButton}
-          onPress={() => setSelectedCategory("Proje")}
-        >
-          <Text style={styles.buttonText}>🛠 Proje</Text>
-        </TouchableOpacity>
-      </View>
+      </>
     );
   }
 
   // -------------------------------
-  // 7) Zamanlayıcı ekranı
+  // 8) Zamanlayıcı ekranı
   // -------------------------------
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Odaklanma Zamanlayıcısı</Text>
-      <Text style={styles.categoryText}>Kategori: {selectedCategory}</Text>
-      <Text style={styles.categoryText}>Süre: {focusMinutes} dakika</Text>
+    <>
+      {renderSummaryModal()}
+      <View style={styles.container}>
+        <Text style={styles.title}>Odaklanma Zamanlayıcısı</Text>
+        <Text style={styles.categoryText}>Kategori: {selectedCategory}</Text>
+        <Text style={styles.categoryText}>Süre: {focusMinutes} dakika</Text>
 
-      <Text style={styles.timer}>{formatTime(secondsLeft)}</Text>
+        <Text style={styles.timer}>{formatTime(secondsLeft)}</Text>
 
-      <View style={styles.buttons}>
-        <TouchableOpacity style={styles.button} onPress={() => setIsRunning(true)}>
-          <Text style={styles.buttonText}>Başlat ▶️</Text>
-        </TouchableOpacity>
+        <View style={styles.buttons}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setIsRunning(true)}
+          >
+            <Text style={styles.buttonText}>Başlat ▶️</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => setIsRunning(false)}>
-          <Text style={styles.buttonText}>Duraklat ⏸</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setIsRunning(false)}
+          >
+            <Text style={styles.buttonText}>Duraklat ⏸</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={() => {
-            setIsRunning(false);
-            setSecondsLeft(focusMinutes * 60);
-            kaydetSession();
-          }}
-        >
-          <Text style={styles.buttonText}>Sıfırla 🔄</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={() => {
+              setIsRunning(false);
+              setSecondsLeft(focusMinutes * 60);
+              kaydetSession(); // Sıfırlayınca da seans özeti göster
+            }}
+          >
+            <Text style={styles.buttonText}>Sıfırla 🔄</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.changeCategoryButton}
-          onPress={() => {
-            setSelectedCategory(null);
-            setDistractions(0);
-            setSecondsLeft(focusMinutes * 60);
-            setIsRunning(false);
-          }}
-        >
-          <Text style={styles.buttonText}>Kategori Değiştir 🔁</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.changeCategoryButton}
+            onPress={() => {
+              setSelectedCategory(null);
+              setDistractions(0);
+              setSecondsLeft(focusMinutes * 60);
+              setIsRunning(false);
+            }}
+          >
+            <Text style={styles.buttonText}>Kategori Değiştir 🔁</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
 // --------------------------------------------
-// 8) Stil dosyası
+// 9) Stil dosyası
 // --------------------------------------------
 const styles = StyleSheet.create({
   container: {
@@ -329,5 +407,40 @@ const styles = StyleSheet.create({
   },
   durationButtonTextSelected: {
     color: "#FFFFFF",
+  },
+  // Modal stilleri
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 6,
+  },
+  modalButton: {
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    backgroundColor: "#673AB7",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
