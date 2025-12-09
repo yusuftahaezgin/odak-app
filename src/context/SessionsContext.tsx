@@ -1,15 +1,34 @@
-import React, { createContext, useContext, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-type Session = {
+const STORAGE_KEY = "@sessions";
+
+// Tek bir seansın tipi
+export type Session = {
   id: number;
   duration: number; // saniye
+  category: string;
+  distractions: number;
+  createdAt: string; // ISO tarih string (grafikler için işimize yarayacak)
+};
+
+// Yeni seans eklerken dışarıya açacağımız input tipi
+export type NewSessionInput = {
+  id: number;
+  duration: number;
   category: string;
   distractions: number;
 };
 
 type SessionsContextType = {
   sessions: Session[];
-  addSession: (session: Session) => void;
+  addSession: (session: NewSessionInput) => void;
 };
 
 const SessionsContext = createContext<SessionsContextType>({
@@ -17,11 +36,51 @@ const SessionsContext = createContext<SessionsContextType>({
   addSession: () => {},
 });
 
-export const SessionsProvider = ({ children }: any) => {
+type SessionsProviderProps = {
+  children: ReactNode;
+};
+
+export const SessionsProvider = ({ children }: SessionsProviderProps) => {
   const [sessions, setSessions] = useState<Session[]>([]);
 
-  const addSession = (session: Session) => {
-    setSessions((prev) => [...prev, session]);
+  // Uygulama açıldığında AsyncStorage'dan verileri yükle
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
+        if (jsonValue) {
+          const parsed: Session[] = JSON.parse(jsonValue);
+          setSessions(parsed);
+        }
+      } catch (error) {
+        console.log("Sessions yüklenirken hata:", error);
+      }
+    };
+
+    loadSessions();
+  }, []);
+
+  // sessions değiştikçe AsyncStorage'a kaydet
+  useEffect(() => {
+    const saveSessions = async () => {
+      try {
+        const jsonValue = JSON.stringify(sessions);
+        await AsyncStorage.setItem(STORAGE_KEY, jsonValue);
+      } catch (error) {
+        console.log("Sessions kaydedilirken hata:", error);
+      }
+    };
+
+    saveSessions();
+  }, [sessions]);
+
+  const addSession = (sessionInput: NewSessionInput) => {
+    const newSession: Session = {
+      ...sessionInput,
+      createdAt: new Date().toISOString(),
+    };
+
+    setSessions((prev) => [...prev, newSession]);
   };
 
   return (
