@@ -1,50 +1,78 @@
-# Welcome to your Expo app 👋
+# 📱 Odaklanma Takip Uygulaması (Focus Tracker App)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Bu proje, kullanıcıların günlük odaklanma sürelerini takip etmesini, dikkat dağınıklıklarını kaydetmesini ve geçmiş seanslara yönelik istatistikler görmesini sağlayan bir mobil uygulamadır. Uygulama **React Native – Expo** kullanılarak geliştirilmiştir ve ödev gereksinimlerini tam olarak karşılamaktadır.
 
-## Get started
+---
 
-1. Install dependencies
+## 🚀 Özellikler
 
-   ```bash
-   npm install
-   ```
+### 🎯 **1. Odaklanma Seansı Başlatma**
+- 25, 45 veya 60 dakikalık odaklanma süreleri seçilebilir.
+- Ders, Kodlama, Kitap, Proje gibi kategoriler arasından seçim yapılabilir.
+- Zamanlayıcı başlatılabilir, duraklatılabilir veya sıfırlanabilir.
 
-2. Start the app
+### ⚠️ **2. Dikkat Dağınıklığı Takibi**
+- Uygulamadan çıkıldığında (AppState “inactive/ background”) dikkat dağınıklığı sayılır.
+- Kullanıcı uygulamaya döndüğünde sayaç devam edip etmeyeceğini seçebilir.
 
-   ```bash
-   npx expo start
-   ```
+### 🧾 **3. Seans Özeti**
+Her tamamlanan odaklanma seansı için:
+- Geçen süre
+- Kategori
+- Dikkat dağınıklığı sayısı  
+bir modal pencerede gösterilir ve kayıt altına alınır.
 
-In the output, you'll find options to open the app in a
+### 🗃️ **4. Veri Kaydetme (AsyncStorage)**
+- Tüm seanslar cihazda kalıcı olarak saklanır.
+- Uygulama kapatılsa bile geçmiş veriler kaybolmaz.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 📊 **5. Raporlar (Dashboard) Ekranı**
+Kayıtlı veriler kullanıcıya görsel ve anlamlı şekilde sunulur:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+#### **Genel İstatistikler**
+- Bugünün toplam odaklanma süresi  
+- Tüm zamanların toplam odaklanma süresi  
+- Toplam dikkat dağınıklığı sayısı  
 
-## Get a fresh project
+#### **Grafikler**
+- **Bar Chart:** Son 7 günün odaklanma süreleri (dk bazlı)  
+- **Pie Chart:** Kategorilere göre yüzdeli dağılım  
 
-When you're ready, run:
+#### **Tüm Seanslar**
+- Seans bazlı geçmiş listesi (kategori, süre, dikkat dağınıklığı)
+
+---
+
+## 🧩 Kullanılan Teknolojiler
+
+- **React Native (Expo)**
+- **expo-router**
+- **TypeScript**
+- **AsyncStorage**
+- **react-native-chart-kit**
+- **Context API (Global State Management)**
+
+---
+
+## 📁 Proje Dosya Yapısı
 
 ```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+project-root/
+│
+├── app/
+│   ├── (tabs)/
+│   │   ├── index.tsx        # Ana ekran (seans başlatma)
+│   │   ├── reports.tsx      # Raporlar ekranı
+│   │   └── _layout.tsx      # Tab navigasyonu
+│   │
+│   └── _layout.tsx          # Root layout (Stack Router)
+│
+├── src/
+│   └── context/
+│       └── SessionsContext.tsx  # Global seans yönetimi
+│
+├── assets/
+├── README.md
+├── app.json
+├── package.json
+└── tsconfig.json
