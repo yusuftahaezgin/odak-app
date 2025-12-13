@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useSessions } from "../../src/context/SessionsContext";
 
-// 🔔 Bildirim kütüphaneleri
+// Bildirim kütüphaneleri
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 
@@ -47,7 +47,7 @@ export default function HomeScreen() {
   const [isSummaryVisible, setIsSummaryVisible] = useState(false);
 
   // -------------------------------
-  // 0) Bildirim izni isteme
+  // Bildirim izni isteme
   // -------------------------------
   useEffect(() => {
     const requestNotificationPermission = async () => {
@@ -73,7 +73,7 @@ export default function HomeScreen() {
   }, []);
 
   // -------------------------------
-  // 1) Sayaç çalışma mantığı
+  //  Sayaç çalışma mantığı
   // -------------------------------
   useEffect(() => {
     let timer: any;
@@ -94,7 +94,7 @@ export default function HomeScreen() {
   }, [isRunning, secondsLeft]);
 
   // -------------------------------
-  // 2) AppState — Dikkat dağınıklığı takibi + bildirim
+  //  AppState — Dikkat dağınıklığı takibi + bildirim
   // -------------------------------
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -114,7 +114,7 @@ export default function HomeScreen() {
         setIsRunning(false);
         setDistractions((prev) => prev + 1);
 
-        // 🔔 Kullanıcıya yerel bildirim gönder
+        // Kullanıcıya yerel bildirim gönder
         Notifications.scheduleNotificationAsync({
           content: {
             title: "Odaklanma seansın durduruldu",
@@ -131,7 +131,7 @@ export default function HomeScreen() {
   }, [isRunning]);
 
   // -------------------------------
-  // 3) Zaman formatı
+  // Zaman formatı
   // -------------------------------
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -140,7 +140,7 @@ export default function HomeScreen() {
   };
 
   // -------------------------------
-  // 4) Seans kaydetme + özeti açma
+  // Seans kaydetme + özeti açma
   // -------------------------------
   const kaydetSession = () => {
     // Kategori seçilmemişse veya süre 0'dan küçükse kaydetme
@@ -170,7 +170,7 @@ export default function HomeScreen() {
   };
 
   // -------------------------------
-  // 5) Süre seçme handler’ı
+  //  Süre seçme handler’ı
   // -------------------------------
   const handleSelectDuration = (minutes: number) => {
     setFocusMinutes(minutes);
@@ -179,7 +179,7 @@ export default function HomeScreen() {
   };
 
   // -------------------------------
-  // 6) Seans özeti modal'ı
+  //  Seans özeti modal'ı
   // -------------------------------
   const renderSummaryModal = () => (
     <Modal visible={isSummaryVisible} transparent animationType="slide">
@@ -213,7 +213,7 @@ export default function HomeScreen() {
   );
 
   // -------------------------------
-  // 7) Kategori & süre seçim ekranı
+  // Kategori & süre seçim ekranı
   // -------------------------------
   if (!selectedCategory) {
     return (
@@ -311,7 +311,7 @@ export default function HomeScreen() {
   }
 
   // -------------------------------
-  // 8) Zamanlayıcı ekranı
+  // Zamanlayıcı ekranı
   // -------------------------------
   return (
     <>
@@ -367,7 +367,7 @@ export default function HomeScreen() {
 }
 
 // --------------------------------------------
-// 9) Stil dosyası
+// Stil dosyası
 // --------------------------------------------
 const styles = StyleSheet.create({
   container: {
