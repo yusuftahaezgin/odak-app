@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSUserNotificationUsageDescription": "Odaklanma seansın durduğunda sana hatırlatma gönderebilmek için bildirim iznine ihtiyacımız var."
+      }
     },
     "android": {
       "adaptiveIcon": {

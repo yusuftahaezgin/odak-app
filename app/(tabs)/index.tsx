@@ -9,11 +9,24 @@ import {
 } from "react-native";
 import { useSessions } from "../../src/context/SessionsContext";
 
+// 🔔 Bildirim kütüphaneleri
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+
 type LastSessionSummary = {
   category: string;
   duration: number; // saniye
   distractions: number;
 };
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: false,  // Ses çalma
+    shouldSetBadge: false,   // Uygulama ikonuna badge koyma
+    shouldShowBanner: true,  // iOS'ta üstte banner olarak göster
+    shouldShowList: true,    // iOS bildirim merkezinde listede göster
+  }),
+});
 
 export default function HomeScreen() {
   // Seçilen süre (dakika)
@@ -34,6 +47,32 @@ export default function HomeScreen() {
   const [isSummaryVisible, setIsSummaryVisible] = useState(false);
 
   // -------------------------------
+  // 0) Bildirim izni isteme
+  // -------------------------------
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      if (!Device.isDevice) {
+        console.log("Bildirimleri test etmek için gerçek cihaz gereklidir.");
+        return;
+      }
+
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== "granted") {
+        console.log("Bildirim izni verilmedi.");
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
+
+  // -------------------------------
   // 1) Sayaç çalışma mantığı
   // -------------------------------
   useEffect(() => {
@@ -45,7 +84,7 @@ export default function HomeScreen() {
       }, 1000);
     }
 
-    // Süre sıfıra indiğinde otomatik kaydediyoruz ve özet gösteriyoruz.
+    // SIFIRA İNDİĞİNDE OTOMATİK KAYDET + ÖZET GÖSTER
     if (secondsLeft === 0 && isRunning) {
       setIsRunning(false);
       kaydetSession();
@@ -55,7 +94,7 @@ export default function HomeScreen() {
   }, [isRunning, secondsLeft]);
 
   // -------------------------------
-  // 2) AppState — Dikkat dağınıklığı takibi
+  // 2) AppState — Dikkat dağınıklığı takibi + bildirim
   // -------------------------------
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -74,6 +113,15 @@ export default function HomeScreen() {
 
         setIsRunning(false);
         setDistractions((prev) => prev + 1);
+
+        // 🔔 Kullanıcıya yerel bildirim gönder
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Odaklanma seansın durduruldu",
+            body: "Uygulamadan çıktığın için dikkat dağınıklığı sayıldı. Devam etmek için uygulamaya geri dönebilirsin.",
+          },
+          trigger: null, // hemen göster
+        });
       }
 
       appState.current = nextAppState;
@@ -81,7 +129,6 @@ export default function HomeScreen() {
 
     return () => subscription.remove();
   }, [isRunning]);
-
 
   // -------------------------------
   // 3) Zaman formatı
