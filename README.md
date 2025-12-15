@@ -1,4 +1,4 @@
-# 📱 Odaklanma Takip Uygulaması (Focus Tracker App)
+# 📱 Odaklanma Takip Uygulaması
 
 Bu proje, kullanıcıların günlük odaklanma sürelerini takip etmesini, dikkat dağınıklıklarını kaydetmesini ve geçmiş seanslara yönelik istatistikler görmesini sağlayan bir mobil uygulamadır. Uygulama **React Native – Expo** kullanılarak geliştirilmiştir.
 
