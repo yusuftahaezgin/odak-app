@@ -54,6 +54,17 @@ Kayıtlı veriler kullanıcıya görsel ve anlamlı şekilde sunulur:
 
 ---
 
+## 🔮 Gelecekte Yapılabilecek Geliştirmeler
+
+- Kullanıcıya özel hedef belirleme
+- Odaklanma seansları için bildirim (push notification)
+- Bulut tabanlı senkronizasyon (Firebase)
+- Karanlık mod (Dark Mode)
+- Haftalık / aylık raporlar
+
+
+---
+
 ## 📁 Proje Dosya Yapısı
 
 ```bash

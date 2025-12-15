@@ -63,7 +63,7 @@ export default function HomeScreen() {
         appState.current === "active" &&
         nextAppState.match(/inactive|background/)
       ) {
-        console.log("📌 Uygulamadan çıkıldı → Dikkat dağınıklığı!");
+        console.log("Uygulamadan çıkıldı → Dikkat dağınıklığı!");
 
         if (isRunning) {
           setIsRunning(false);
