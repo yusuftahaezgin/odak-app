@@ -1,6 +1,6 @@
 # 📱 Odaklanma Takip Uygulaması (Focus Tracker App)
 
-Bu proje, kullanıcıların günlük odaklanma sürelerini takip etmesini, dikkat dağınıklıklarını kaydetmesini ve geçmiş seanslara yönelik istatistikler görmesini sağlayan bir mobil uygulamadır. Uygulama **React Native – Expo** kullanılarak geliştirilmiştir ve ödev gereksinimlerini tam olarak karşılamaktadır.
+Bu proje, kullanıcıların günlük odaklanma sürelerini takip etmesini, dikkat dağınıklıklarını kaydetmesini ve geçmiş seanslara yönelik istatistikler görmesini sağlayan bir mobil uygulamadır. Uygulama **React Native – Expo** kullanılarak geliştirilmiştir.
 
 ---
 
@@ -61,29 +61,3 @@ Kayıtlı veriler kullanıcıya görsel ve anlamlı şekilde sunulur:
 - Bulut tabanlı senkronizasyon (Firebase)
 - Karanlık mod (Dark Mode)
 - Haftalık / aylık raporlar
-
-
----
-
-## 📁 Proje Dosya Yapısı
-
-```bash
-project-root/
-│
-├── app/
-│   ├── (tabs)/
-│   │   ├── index.tsx        # Ana ekran (seans başlatma)
-│   │   ├── reports.tsx      # Raporlar ekranı
-│   │   └── _layout.tsx      # Tab navigasyonu
-│   │
-│   └── _layout.tsx          # Root layout (Stack Router)
-│
-├── src/
-│   └── context/
-│       └── SessionsContext.tsx  # Global seans yönetimi
-│
-├── assets/
-├── README.md
-├── app.json
-├── package.json
-└── tsconfig.json
