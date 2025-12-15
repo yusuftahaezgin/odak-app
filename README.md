@@ -64,7 +64,6 @@ Bu projeyi çalıştırmak için bilgisayarınızda **Node.js** ve **Expo CLI** 
 
 ### 2️⃣ Projeyi Klonlama
 git clone https://github.com/yusuftahaezgin/odak-app.git
-cd odak-app
 
 ---
 
