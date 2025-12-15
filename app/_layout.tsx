@@ -9,12 +9,10 @@ export default function RootLayout() {
   return (
     // SessionsProvider ile tüm uygulamayı sardık. Böylece bütün ekranlar aynı seans verisine erişebilir.
     <SessionsProvider>
-      {/* 
-        Stack navigasyon yapısı:
-        - Ekranlar arası geçişi yönetir
-        - Varsayılan header (üst başlık) kapatılmıştır
-      */}
+
+      {/* Varsayılan header kapatıldı.*/}
       <Stack screenOptions={{ headerShown: false }}>
+        
         {/* 
           (tabs) route grubu:
           - app/(tabs) klasörü altındaki tab navigation'ı temsil eder

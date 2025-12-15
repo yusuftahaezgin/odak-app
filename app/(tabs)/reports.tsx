@@ -177,7 +177,7 @@ export default function ReportsScreen() {
             data={pieData}
             width={screenWidth - 40}
             height={220}
-            chartConfig={chartConfig}      // ← ÖNEMLİ: chartConfig ekledik
+            chartConfig={chartConfig} 
             accessor="population"
             backgroundColor="transparent"
             paddingLeft="16"
@@ -218,9 +218,12 @@ export default function ReportsScreen() {
       <View style={styles.sessionsCard}>
         <Text style={styles.sessionsHeader}>Tüm Seanslar</Text>
 
-        {sessions.length === 0 && <Text>Henüz seans yok 👀</Text>}
+        {sessions.length === 0 && <Text>Henüz seans yok</Text>}
 
-        {sessions.map((s) => (
+        {sessions.sort(
+            (a, b) =>
+               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) 
+        .map((s) => (
           <View key={s.id} style={styles.sessionBox}>
             <Text style={styles.sessionText}>Kategori: {s.category}</Text>
             <Text style={styles.sessionText}>

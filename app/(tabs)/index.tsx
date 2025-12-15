@@ -45,7 +45,7 @@ export default function HomeScreen() {
       }, 1000);
     }
 
-    // SIFIRA İNDİĞİNDE OTOMATİK KAYDET + ÖZET GÖSTER
+    // Süre sıfıra indiğinde otomatik kaydediyoruz ve özet gösteriyoruz.
     if (secondsLeft === 0 && isRunning) {
       setIsRunning(false);
       kaydetSession();

@@ -51,13 +51,42 @@ Kayıtlı veriler kullanıcıya görsel ve anlamlı şekilde sunulur:
 - **AsyncStorage**
 - **react-native-chart-kit**
 - **Context API (Global State Management)**
+---
+
+## ▶️ Projeyi Çalıştırma
+
+Bu projeyi çalıştırmak için bilgisayarınızda **Node.js** ve **Expo CLI** kurulu olmalıdır.
+
+### 1️⃣ Gerekli Kurulumlar
+- Node.js (v18 veya üzeri önerilir)
+- npm veya yarn
+- Expo Go (mobil cihaz için – App Store / Play Store)
+
+### 2️⃣ Projeyi Klonlama
+git clone https://github.com/yusuftahaezgin/odak-app.git
+cd odak-app
 
 ---
 
-## 🔮 Gelecekte Yapılabilecek Geliştirmeler
+### 3️⃣ Bağımlılıkların Yüklenmesi
+Proje klasörüne girdikten sonra, uygulamanın ihtiyaç duyduğu tüm bağımlılıkları yüklemek için aşağıdaki komut çalıştırılır:
 
-- Kullanıcıya özel hedef belirleme
-- Odaklanma seansları için bildirim (push notification)
-- Bulut tabanlı senkronizasyon (Firebase)
-- Karanlık mod (Dark Mode)
-- Haftalık / aylık raporlar
+npm install 
+
+Bu işlem:
+- React Native
+- Expo
+- AsyncStorage
+- Grafik kütüphaneleri
+gibi tüm gerekli paketleri otomatik olarak kurar.
+
+---
+
+### 4️⃣ Uygulamanın Çalıştırılması
+
+Bağımlılıklar yüklendikten sonra uygulama aşağıdaki komut ile başlatılır:
+
+npx expo start
+
+```
+
