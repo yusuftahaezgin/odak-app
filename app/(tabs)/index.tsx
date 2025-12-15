@@ -59,25 +59,29 @@ export default function HomeScreen() {
   // -------------------------------
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
+      // Sayaç çalışmıyorsa AppState değişimini dikkate alma
+      if (!isRunning) {
+        appState.current = nextAppState;
+        return;
+      }
+
+      // Sadece sayaç çalışırken arka plana düşerse dikkat dağınıklığı say
       if (
         appState.current === "active" &&
         nextAppState.match(/inactive|background/)
       ) {
         console.log("Uygulamadan çıkıldı → Dikkat dağınıklığı!");
 
-        if (isRunning) {
-          setIsRunning(false);
-          setDistractions((prev) => prev + 1);
-        }
+        setIsRunning(false);
+        setDistractions((prev) => prev + 1);
       }
 
       appState.current = nextAppState;
     });
 
-    return () => {
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, [isRunning]);
+
 
   // -------------------------------
   // 3) Zaman formatı
